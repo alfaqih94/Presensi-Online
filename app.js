@@ -26,6 +26,9 @@ function initializeApp() {
   // Start clock
   updateClock();
   setInterval(updateClock, 1000);
+  document
+    .getElementById("confirmYes")
+    .addEventListener("click", confirmAction);
 }
 
 // Populate employee dropdown for admin reports
@@ -149,8 +152,7 @@ function updateClock() {
   const dateElement = document.getElementById("currentDate");
 
   if (timeElement) {
-    timeElement.textContent =
-      now.toLocaleTimeString("id-ID", timeOptions) + " WIB";
+    timeElement.textContent = now.toLocaleTimeString("id-ID", timeOptions);
   }
   if (dateElement) {
     dateElement.textContent = now.toLocaleDateString("id-ID", dateOptions);
@@ -171,33 +173,14 @@ function formatDate(date) {
   return `${day}/${month}/${year}`;
 }
 
-// Attendance functions
 function clockIn() {
-  showLoadingModal();
-  const now = new Date();
-  const timeString = formatTime(now);
-  const dateString = formatDate(now);
-
-  sendToGoogleSheets({
-    Nama: currentUser.nama,
-    Cabang: currentUser.cabang,
-    Tanggal: dateString,
-    Masuk: timeString,
-  });
+  currentConfirmationType = "Masuk";
+  showConfirmationModal("Masuk");
 }
 
 function clockOut() {
-  showLoadingModal();
-  const now = new Date();
-  const timeString = formatTime(now);
-  const dateString = formatDate(now);
-
-  sendToGoogleSheets({
-    Nama: currentUser.nama,
-    Cabang: currentUser.cabang,
-    Tanggal: dateString,
-    Pulang: timeString,
-  });
+  currentConfirmationType = "Pulang";
+  showConfirmationModal("Pulang");
 }
 
 function showPermissionForm(type) {
@@ -1038,6 +1021,50 @@ async function loadEmployeeReport() {
     summaryDiv.classList.add("hidden");
   }
 }
+// Fungsi untuk menampilkan modal konfirmasi
+function showConfirmationModal(type) {
+  const now = new Date();
+  const timeString = formatTime(now);
+  const dateString = formatDate(now);
+  const fullDateTime = `${dateString} ${timeString}`;
+
+  document.getElementById(
+    "confirmationTitle"
+  ).textContent = `Apakah kamu yakin mengirimkan data ${type} Sekarang?`;
+  document.getElementById("confirmationTime").textContent = fullDateTime;
+  document.getElementById("confirmationModal").classList.remove("hidden");
+}
+
+// Fungsi untuk menutup modal konfirmasi
+function closeConfirmationModal() {
+  document.getElementById("confirmationModal").classList.add("hidden");
+}
+
+// Fungsi yang akan dipanggil ketika tombol Ya diklik
+function confirmAction() {
+  closeConfirmationModal();
+  showLoadingModal();
+
+  const now = new Date();
+  const timeString = formatTime(now);
+  const dateString = formatDate(now);
+
+  if (currentConfirmationType === "Masuk") {
+    sendToGoogleSheets({
+      Nama: currentUser.nama,
+      Cabang: currentUser.cabang,
+      Tanggal: dateString,
+      Masuk: timeString,
+    });
+  } else if (currentConfirmationType === "Pulang") {
+    sendToGoogleSheets({
+      Nama: currentUser.nama,
+      Cabang: currentUser.cabang,
+      Tanggal: dateString,
+      Pulang: timeString,
+    });
+  }
+}
 
 function generateEmployeeMonthlyReport(data, employeeName, monthFilter) {
   if (!data || data.length <= 1) return [];
@@ -1118,11 +1145,6 @@ function generateEmployeeMonthlyReport(data, employeeName, monthFilter) {
     const dayName = currentDate.toLocaleDateString("id-ID", {
       weekday: "long",
     });
-
-    // Skip Sundays (weekday 0)
-    if (currentDate.getDay() === 0) {
-      continue;
-    }
 
     if (groupedByDate[dateString]) {
       // Data exists for this date

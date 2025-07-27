@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       .clock {
-        font-family: Georgia, "Times New Roman", Times, serif;
+        font-family: "Courier New", Courier, monospace;
         font-weight: bold;
       }
       .fade-in {
@@ -105,22 +105,24 @@
       id="loginForm"
       class="min-h-screen flex items-center justify-center p-4 bg-red-200 mobile-padding"
     >
-      <div class="bg-red-50 rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in">
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 mx-auto mb-4">
+      <div
+        class="bg-red-100 rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in"
+      >
+        <div class="text-center mb-4">
+          <div class="w-48 h-48 mx-auto mb-2">
             <img
               src="src/logo.svg"
               alt="Logo"
               class="w-full h-full object-contain"
             />
           </div>
-          <h1 class="text-2xl font-bold text-gray-1000">TOP TOP TEA APPS</h1>
-          <p class="text-gray-800 mt-2">Aplikasi Presensi Online</p>
+          <h1 class="text-4xl font-bold text-gray-1000">TOP TOP TEA</h1>
+          <p class="text-gray-800 mt-2">Sistem Presensi Online</p>
         </div>
 
         <form id="loginFormSubmit" class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
+            <label class="block text-sm font-medium text-black-700 mb-1"
               >User ID</label
             >
             <input
@@ -133,7 +135,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
+            <label class="block text-sm font-medium text-black-700 mb-1"
               >Password</label
             >
             <input
@@ -151,6 +153,14 @@
           >
             Masuk
           </button>
+          <div class="flex flex-col gap-1">
+            <label class="flex justify-center">
+              <label class="text-xs text-gray-500">Kode Versi 1.2.0</label>
+            </label>
+            <label class="flex justify-center">
+              <label class="text-xs text-gray-500">Dev. Sang Pemalas </label>
+            </label>
+          </div>
         </form>
 
         <div
@@ -170,7 +180,7 @@
           class="bg-white rounded-2xl shadow-lg p-6 mb-6 fade-in mobile-px-3 mobile-py-2"
         >
           <div
-            class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0"
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 relative"
           >
             <div>
               <h1
@@ -184,24 +194,27 @@
             </div>
             <button
               onclick="logout()"
-              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 text-sm"
+              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 text-sm mt-3 sm-mt-0"
             >
               KELUAR
             </button>
           </div>
+          <div
+            class="hidden sm:block absolute right-0 top-1/2 transform -translate-y-1/2 md:static md:transform-none"
+          ></div>
         </div>
 
         <!-- Clock and Date -->
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 mb-6 text-center fade-in mobile-px-3 mobile-py-2"
+          class="bg-red-200 rounded-2xl shadow-lg p-6 mb-6 text-center fade-in mobile-px-3 mobile-py-2"
         >
           <div
             id="currentTime"
-            class="clock text-4xl mobile-text-3xl font-bold text-red-800 mb-2"
+            class="clock text-4xl mobile-text-3xl font-bold text-black-700 mb-2"
           ></div>
           <div
             id="currentDate"
-            class="text-xl mobile-text-lg text-black-500"
+            class="text-xl mobile-text-lg text-black-600"
           ></div>
         </div>
 
@@ -218,13 +231,13 @@
             <div class="space-y-4 mobile-space-y-3">
               <button
                 onclick="clockIn()"
-                class="w-full bg-green-400 text-white py-3 rounded-lg hover:bg-green-100 transition duration-200 font-medium pulse-button"
+                class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200 font-medium pulse-button"
               >
                 ✅ Masuk
               </button>
               <button
                 onclick="clockOut()"
-                class="w-full bg-red-400 text-white py-3 rounded-lg hover:bg-orange-100 transition duration-200 font-medium pulse-button"
+                class="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-200 font-medium pulse-button"
               >
                 ❌ Pulang
               </button>
@@ -242,13 +255,13 @@
             <div class="space-y-4 mobile-space-y-3">
               <button
                 onclick="showPermissionForm('Izin')"
-                class="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600 transition duration-200 font-medium pulse-button"
+                class="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600 transition duration-200 font-medium"
               >
                 📋 Izin
               </button>
               <button
                 onclick="showPermissionForm('Sakit')"
-                class="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-200 font-medium pulse-button"
+                class="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600 transition duration-200 font-medium"
               >
                 🏥 Sakit
               </button>
@@ -349,6 +362,34 @@
         </div>
       </div>
     </div>
+    <div
+      id="confirmationModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md text-center"
+      >
+        <h3
+          id="confirmationTitle"
+          class="text-xl font-bold text-gray-800 mb-4"
+        ></h3>
+        <div id="confirmationTime" class="text-center text-lg mb-6"></div>
+        <div class="flex space-x-4">
+          <button
+            id="confirmYes"
+            class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200 font-medium pulse-button"
+          >
+            Ya
+          </button>
+          <button
+            onclick="closeConfirmationModal()"
+            class="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-200 font-medium pulse-button"
+          >
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Sync Modal -->
     <div
@@ -404,7 +445,7 @@
               onclick="logout()"
               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 text-sm"
             >
-              Logout
+              KELUAR
             </button>
           </div>
         </div>
@@ -439,7 +480,7 @@
           <div id="todayContent" class="admin-tab-content p-6">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-xl font-bold text-gray-800">
-                Data Kehadiran Hari Ini - Semua Cabang
+                Data Kehadiran Hari Ini
               </h3>
               <button
                 onclick="loadTodayAttendance()"
@@ -490,7 +531,7 @@
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0"
               >
                 <h4 class="text-lg font-semibold text-gray-800">
-                  Rekap Kehadiran Bulanan - Semua Pegawai & Cabang
+                  Rekap Kehadiran Bulanan
                 </h4>
                 <div class="flex items-center space-x-3">
                   <label class="text-sm font-medium text-gray-700"
@@ -659,6 +700,7 @@
     <!-- Load external data files -->
     <script src="data-pegawai.js"></script>
     <script src="data-cabang.js"></script>
+    <script src="app.js"></script>
     <script>
       // Aplikasi Presensi Karyawan - Main JavaScript File
 
@@ -688,8 +730,55 @@
         // Start clock
         updateClock();
         setInterval(updateClock, 1000);
+        document
+          .getElementById("confirmYes")
+          .addEventListener("click", confirmAction);
       }
 
+      // Fungsi untuk menampilkan modal konfirmasi
+      function showConfirmationModal(type) {
+        const now = new Date();
+        const timeString = formatTime(now);
+        const dateString = formatDate(now);
+        const fullDateTime = `${dateString} ${timeString}`;
+
+        document.getElementById(
+          "confirmationTitle"
+        ).textContent = `Apakah kamu yakin mengirimkan data ${type} Sekarang?`;
+        document.getElementById("confirmationTime").textContent = fullDateTime;
+        document.getElementById("confirmationModal").classList.remove("hidden");
+      }
+
+      // Fungsi untuk menutup modal konfirmasi
+      function closeConfirmationModal() {
+        document.getElementById("confirmationModal").classList.add("hidden");
+      }
+
+      // Fungsi yang akan dipanggil ketika tombol Ya diklik
+      function confirmAction() {
+        closeConfirmationModal();
+        showLoadingModal();
+
+        const now = new Date();
+        const timeString = formatTime(now);
+        const dateString = formatDate(now);
+
+        if (currentConfirmationType === "Masuk") {
+          sendToGoogleSheets({
+            Nama: currentUser.nama,
+            Cabang: currentUser.cabang,
+            Tanggal: dateString,
+            Masuk: timeString,
+          });
+        } else if (currentConfirmationType === "Pulang") {
+          sendToGoogleSheets({
+            Nama: currentUser.nama,
+            Cabang: currentUser.cabang,
+            Tanggal: dateString,
+            Pulang: timeString,
+          });
+        }
+      }
       // Populate employee dropdown for admin reports
       function populateEmployeeDropdown() {
         const dropdown = document.getElementById("employeeReportFilter");
@@ -818,8 +907,10 @@
         const dateElement = document.getElementById("currentDate");
 
         if (timeElement) {
-          timeElement.textContent =
-            now.toLocaleTimeString("id-ID", timeOptions) + " WIB";
+          timeElement.textContent = now.toLocaleTimeString(
+            "id-ID",
+            timeOptions
+          );
         }
         if (dateElement) {
           dateElement.textContent = now.toLocaleDateString(
@@ -843,33 +934,14 @@
         return `${day}/${month}/${year}`;
       }
 
-      // Attendance functions
       function clockIn() {
-        showLoadingModal();
-        const now = new Date();
-        const timeString = formatTime(now);
-        const dateString = formatDate(now);
-
-        sendToGoogleSheets({
-          Nama: currentUser.nama,
-          Cabang: currentUser.cabang,
-          Tanggal: dateString,
-          Masuk: timeString,
-        });
+        currentConfirmationType = "Masuk";
+        showConfirmationModal("Masuk");
       }
 
       function clockOut() {
-        showLoadingModal();
-        const now = new Date();
-        const timeString = formatTime(now);
-        const dateString = formatDate(now);
-
-        sendToGoogleSheets({
-          Nama: currentUser.nama,
-          Cabang: currentUser.cabang,
-          Tanggal: dateString,
-          Pulang: timeString,
-        });
+        currentConfirmationType = "Pulang";
+        showConfirmationModal("Pulang");
       }
 
       function showPermissionForm(type) {
