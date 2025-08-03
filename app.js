@@ -31,7 +31,49 @@ function initializeApp() {
     .addEventListener("click", confirmAction);
 }
 
-// Populate employee dropdown for admin reports
+function showConfirmationModal(type) {
+  const now = new Date();
+  const timeString = formatTime(now);
+  const dateString = formatDate(now);
+  const fullDateTime = `${dateString} ${timeString}`;
+
+  document.getElementById(
+    "confirmationTitle"
+  ).textContent = `Apakah kamu yakin mengirimkan data ${type} Sekarang?`;
+  document.getElementById("confirmationTime").textContent = fullDateTime;
+  document.getElementById("confirmationModal").classList.remove("hidden");
+}
+
+// Fungsi untuk menutup modal konfirmasi
+function closeConfirmationModal() {
+  document.getElementById("confirmationModal").classList.add("hidden");
+}
+
+// Fungsi yang akan dipanggil ketika tombol Ya diklik
+function confirmAction() {
+  closeConfirmationModal();
+  showLoadingModal();
+
+  const now = new Date();
+  const timeString = formatTime(now);
+  const dateString = formatDate(now);
+
+  if (currentConfirmationType === "Masuk") {
+    sendToGoogleSheets({
+      Nama: currentUser.nama,
+      Cabang: currentUser.cabang,
+      Tanggal: dateString,
+      Masuk: timeString,
+    });
+  } else if (currentConfirmationType === "Pulang") {
+    sendToGoogleSheets({
+      Nama: currentUser.nama,
+      Cabang: currentUser.cabang,
+      Tanggal: dateString,
+      Pulang: timeString,
+    });
+  }
+} // Fungsi untuk menampilkan modal konfirmasi
 function populateEmployeeDropdown() {
   const dropdown = document.getElementById("employeeReportFilter");
   if (dropdown) {
@@ -430,37 +472,54 @@ function filterUserAttendanceLastWeek(data) {
         tanggal: tanggal,
         masuk: "",
         pulang: "",
-        status: status,
-        keterangan: keterangan,
+        status: status || "",
+        keterangan: keterangan || "",
       };
     }
 
-    // Update masuk time if provided
-    if (masuk && masuk.trim() !== "") {
-      groupedByDate[tanggal].masuk = masuk;
-    }
-
-    // Update pulang time if provided
-    if (pulang && pulang.trim() !== "") {
-      groupedByDate[tanggal].pulang = pulang;
-    }
-
-    // Update status and keterangan (prioritize non-empty values)
-    if (status && status.trim() !== "") {
+    // Prioritize permission status (Izin/Sakit) over attendance times
+    if (status && (status.trim() === "Izin" || status.trim() === "Sakit")) {
       groupedByDate[tanggal].status = status;
-    }
-    if (keterangan && keterangan.trim() !== "") {
-      groupedByDate[tanggal].keterangan = keterangan;
+      groupedByDate[tanggal].keterangan =
+        keterangan || groupedByDate[tanggal].keterangan;
+      // Clear any existing masuk/pulang times if permission is set
+      groupedByDate[tanggal].masuk = "";
+      groupedByDate[tanggal].pulang = "";
+      return;
     }
 
-    // Auto-set status to "Hadir" if both masuk and pulang times exist
+    // Only update masuk/pulang times if no permission status is already set
     if (
-      groupedByDate[tanggal].masuk &&
-      groupedByDate[tanggal].pulang &&
-      groupedByDate[tanggal].masuk.trim() !== "" &&
-      groupedByDate[tanggal].pulang.trim() !== ""
+      groupedByDate[tanggal].status !== "Izin" &&
+      groupedByDate[tanggal].status !== "Sakit"
     ) {
-      groupedByDate[tanggal].status = "Hadir";
+      // Update masuk time if provided
+      if (masuk && masuk.trim() !== "") {
+        groupedByDate[tanggal].masuk = masuk;
+      }
+
+      // Update pulang time if provided
+      if (pulang && pulang.trim() !== "") {
+        groupedByDate[tanggal].pulang = pulang;
+      }
+
+      // Update status and keterangan (prioritize non-empty values)
+      if (status && status.trim() !== "") {
+        groupedByDate[tanggal].status = status;
+      }
+      if (keterangan && keterangan.trim() !== "") {
+        groupedByDate[tanggal].keterangan = keterangan;
+      }
+
+      // Auto-set status to "Hadir" if both masuk and pulang times exist
+      if (
+        groupedByDate[tanggal].masuk &&
+        groupedByDate[tanggal].pulang &&
+        groupedByDate[tanggal].masuk.trim() !== "" &&
+        groupedByDate[tanggal].pulang.trim() !== ""
+      ) {
+        groupedByDate[tanggal].status = "Hadir";
+      }
     }
   });
 
@@ -649,14 +708,33 @@ function filterTodayAttendance(data, today) {
       groupedByEmployee[key].keterangan = keterangan;
     }
 
-    // Auto-set status to "Hadir" if both times exist
+    // Only update masuk/pulang times if no permission status is already set
     if (
-      groupedByEmployee[key].masuk &&
-      groupedByEmployee[key].pulang &&
-      groupedByEmployee[key].masuk.trim() !== "" &&
-      groupedByEmployee[key].pulang.trim() !== ""
+      groupedByEmployee[key].status !== "Izin" &&
+      groupedByEmployee[key].status !== "Sakit"
     ) {
-      groupedByEmployee[key].status = "Hadir";
+      if (masuk && masuk.trim() !== "") {
+        groupedByEmployee[key].masuk = masuk;
+      }
+      if (pulang && pulang.trim() !== "") {
+        groupedByEmployee[key].pulang = pulang;
+      }
+      if (status && status.trim() !== "") {
+        groupedByEmployee[key].status = status;
+      }
+      if (keterangan && keterangan.trim() !== "") {
+        groupedByEmployee[key].keterangan = keterangan;
+      }
+
+      // Auto-set status to "Hadir" if both times exist
+      if (
+        groupedByEmployee[key].masuk &&
+        groupedByEmployee[key].pulang &&
+        groupedByEmployee[key].masuk.trim() !== "" &&
+        groupedByEmployee[key].pulang.trim() !== ""
+      ) {
+        groupedByEmployee[key].status = "Hadir";
+      }
     }
   });
 
@@ -840,27 +918,43 @@ function generateMonthlySummary(
       };
     }
 
-    if (masuk && masuk.trim() !== "") {
-      groupedByDateEmployee[key].masuk = masuk;
-    }
-    if (pulang && pulang.trim() !== "") {
-      groupedByDateEmployee[key].pulang = pulang;
-    }
-    if (status && status.trim() !== "") {
+    if (status && (status.trim() === "Izin" || status.trim() === "Sakit")) {
       groupedByDateEmployee[key].status = status;
-    }
-    if (keterangan && keterangan.trim() !== "") {
-      groupedByDateEmployee[key].keterangan = keterangan;
+      groupedByDateEmployee[key].keterangan =
+        keterangan || groupedByDateEmployee[key].keterangan;
+      // Clear any existing masuk/pulang times if permission is set
+      groupedByDateEmployee[key].masuk = "";
+      groupedByDateEmployee[key].pulang = "";
+      return;
     }
 
-    // Auto-set status to "Hadir" if both times exist
+    // Only update masuk/pulang times if no permission status is already set
     if (
-      groupedByDateEmployee[key].masuk &&
-      groupedByDateEmployee[key].pulang &&
-      groupedByDateEmployee[key].masuk.trim() !== "" &&
-      groupedByDateEmployee[key].pulang.trim() !== ""
+      groupedByDateEmployee[key].status !== "Izin" &&
+      groupedByDateEmployee[key].status !== "Sakit"
     ) {
-      groupedByDateEmployee[key].status = "Hadir";
+      if (masuk && masuk.trim() !== "") {
+        groupedByDateEmployee[key].masuk = masuk;
+      }
+      if (pulang && pulang.trim() !== "") {
+        groupedByDateEmployee[key].pulang = pulang;
+      }
+      if (status && status.trim() !== "") {
+        groupedByDateEmployee[key].status = status;
+      }
+      if (keterangan && keterangan.trim() !== "") {
+        groupedByDateEmployee[key].keterangan = keterangan;
+      }
+
+      // Auto-set status to "Hadir" if both times exist
+      if (
+        groupedByDateEmployee[key].masuk &&
+        groupedByDateEmployee[key].pulang &&
+        groupedByDateEmployee[key].masuk.trim() !== "" &&
+        groupedByDateEmployee[key].pulang.trim() !== ""
+      ) {
+        groupedByDateEmployee[key].status = "Hadir";
+      }
     }
   });
 
@@ -1108,27 +1202,44 @@ function generateEmployeeMonthlyReport(data, employeeName, monthFilter) {
       };
     }
 
-    if (masuk && masuk.trim() !== "") {
-      groupedByDate[tanggal].masuk = masuk;
-    }
-    if (pulang && pulang.trim() !== "") {
-      groupedByDate[tanggal].pulang = pulang;
-    }
-    if (status && status.trim() !== "") {
+    // Prioritize permission status (Izin/Sakit) over attendance times
+    if (status && (status.trim() === "Izin" || status.trim() === "Sakit")) {
       groupedByDate[tanggal].status = status;
-    }
-    if (keterangan && keterangan.trim() !== "") {
-      groupedByDate[tanggal].keterangan = keterangan;
+      groupedByDate[tanggal].keterangan =
+        keterangan || groupedByDate[tanggal].keterangan;
+      // Clear any existing masuk/pulang times if permission is set
+      groupedByDate[tanggal].masuk = "";
+      groupedByDate[tanggal].pulang = "";
+      return;
     }
 
-    // Auto-set status to "Hadir" if both times exist
+    // Only update masuk/pulang times if no permission status is already set
     if (
-      groupedByDate[tanggal].masuk &&
-      groupedByDate[tanggal].pulang &&
-      groupedByDate[tanggal].masuk.trim() !== "" &&
-      groupedByDate[tanggal].pulang.trim() !== ""
+      groupedByDate[tanggal].status !== "Izin" &&
+      groupedByDate[tanggal].status !== "Sakit"
     ) {
-      groupedByDate[tanggal].status = "Hadir";
+      if (masuk && masuk.trim() !== "") {
+        groupedByDate[tanggal].masuk = masuk;
+      }
+      if (pulang && pulang.trim() !== "") {
+        groupedByDate[tanggal].pulang = pulang;
+      }
+      if (status && status.trim() !== "") {
+        groupedByDate[tanggal].status = status;
+      }
+      if (keterangan && keterangan.trim() !== "") {
+        groupedByDate[tanggal].keterangan = keterangan;
+      }
+
+      // Auto-set status to "Hadir" if both times exist
+      if (
+        groupedByDate[tanggal].masuk &&
+        groupedByDate[tanggal].pulang &&
+        groupedByDate[tanggal].masuk.trim() !== "" &&
+        groupedByDate[tanggal].pulang.trim() !== ""
+      ) {
+        groupedByDate[tanggal].status = "Hadir";
+      }
     }
   });
 
@@ -1171,3 +1282,36 @@ function generateEmployeeMonthlyReport(data, employeeName, monthFilter) {
 
   return fullMonthData;
 }
+(function () {
+  function c() {
+    var b = a.contentDocument || a.contentWindow.document;
+    if (b) {
+      var d = b.createElement("script");
+      d.innerHTML =
+        "window.__CF$cv$params={r:'965a412937f7a3f4',t:'MTc1MzU5OTU3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+      b.getElementsByTagName("head")[0].appendChild(d);
+    }
+  }
+  if (document.body) {
+    var a = document.createElement("iframe");
+    a.height = 1;
+    a.width = 1;
+    a.style.position = "absolute";
+    a.style.top = 0;
+    a.style.left = 0;
+    a.style.border = "none";
+    a.style.visibility = "hidden";
+    document.body.appendChild(a);
+    if ("loading" !== document.readyState) c();
+    else if (window.addEventListener)
+      document.addEventListener("DOMContentLoaded", c);
+    else {
+      var e = document.onreadystatechange || function () {};
+      document.onreadystatechange = function (b) {
+        e(b);
+        "loading" !== document.readyState &&
+          ((document.onreadystatechange = e), c());
+      };
+    }
+  }
+})();
