@@ -71,13 +71,6 @@ const dataPegawai = [
     status: "Aktif",
   },
   {
-    userId: "11",
-    nama: "Ujicoba",
-    password: "11",
-    cabangId: "C04",
-    status: "Aktif",
-  },
-  {
     userId: "Admin",
     nama: "Administrator",
     password: "99",
