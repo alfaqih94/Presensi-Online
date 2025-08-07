@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aplikasi Presensi Karyawan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./src/output.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -123,10 +123,10 @@
     <!-- Login Form -->
     <div
       id="loginForm"
-      class="min-h-screen flex items-center justify-center p-4 bg-red-200 mobile-padding"
+      class="min-h-screen flex items-center justify-center p-4 bg-red-100 mobile-padding"
     >
       <div
-        class="bg-red-100 rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in"
+        class="bg-linear-to-tr/oklch from-[#fffcdc] to-[#d9a7c7] rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in"
       >
         <div class="text-center mb-4">
           <div class="w-48 h-48 mx-auto mb-2">
@@ -150,7 +150,7 @@
             <input
               type="text"
               id="userId"
-              class="w-full px-4 py-3 border border-gray-300 font-boldrounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               placeholder="Masukkan User ID"
               required
             />
@@ -163,7 +163,7 @@
             <input
               type="password"
               id="password"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               placeholder="Masukkan Password"
               required
             />
@@ -171,23 +171,25 @@
 
           <button
             type="submit"
-            class="w-full bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-800 transition duration-200 font-medium"
+            class="w-full bg-cyan-600 text-black py-3 rounded-2xl hover:bg-cyan-800 transition duration-200 font-sans font-bold"
           >
-            Masuk
+            MASUK
           </button>
           <div class="flex flex-col gap-1">
             <label class="flex justify-center">
-              <label class="text-xs text-gray-500">Versi 1.4.3</label>
+              <label class="text-xs text-red-800 font-bold"
+                >Versi 1.5.1 - STABLE</label
+              >
             </label>
             <label class="flex justify-center">
-              <label class="text-xs text-gray-500">Sang Pejuang</label>
+              <label class="text-xs text-red-800 font-bold">Sang Pejuang</label>
             </label>
           </div>
         </form>
 
         <div
           id="loginError"
-          class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden"
+          class="mt-4 p-3 text-center bg-red-100 border border-red-400 text-red-700 rounded-lg hidden"
         >
           User ID atau Password salah!
         </div>
